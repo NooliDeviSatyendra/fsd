@@ -1,0 +1,44 @@
+// server.js
+const express = require("express");
+const app = express();
+const port = 3000;
+
+// Use middleware to parse JSON and form data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// In-memory list of todos
+let todos = [];
+
+// Home route - show all todos
+app.get("/", (req, res) => {
+  let html = "<h1>Simple To-Do List</h1><ul>";
+  todos.forEach((todo, index) => {
+    html += `<li>${todo} <a href="/delete/${index}">[delete]</a></li>`;
+  });
+  html += `</ul>
+    <form method="POST" action="/add">
+      <input type="text" name="task" placeholder="New task" required>
+      <button type="submit">Add</button>
+    </form>`;
+  res.send(html);
+});
+
+// Add new todo
+app.post("/add", (req, res) => {
+  const { task } = req.body;
+  todos.push(task);
+  res.redirect("/");
+});
+
+// Delete todo
+app.get("/delete/:id", (req, res) => {
+  const id = req.params.id;
+  todos.splice(id, 1);
+  res.redirect("/");
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`To-do app running at http://localhost:${port}`);
+});
